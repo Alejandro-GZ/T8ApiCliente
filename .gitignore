@@ -197,6 +197,7 @@ pyrightconfig.json
 [Ll]ib64
 [Ll]ocal
 Scripts
+data/
 pyvenv.cfg
 pip-selfcheck.json
 
@@ -220,5 +221,3 @@ pip-selfcheck.json
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,visualstudiocode,python,venv
-
-.data/*
