@@ -1,0 +1,1 @@
+#TODO: GETs for spectra and waveform lists and individual items
