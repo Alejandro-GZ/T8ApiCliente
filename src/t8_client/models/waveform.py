@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 import numpy as np
-from basedata import BaseData
 from numpy.fft import fft, fftfreq
 
 from ..utils.plotting import plot_xy
+from .basedata import BaseData
 
 
 @dataclass
@@ -12,17 +12,19 @@ class WaveformData(BaseData):
     """Clase que representa los datos de forma de onda.""" #TODO: Add more description
     sample_rate: int
     
-    def plot(self, output_path: str) -> None: #TODO: Add description (@see plot_xy)
+    def plot(self) -> None: #TODO: Add description (@see plot_xy)
+        path = f"data/plots/waves/ \
+                wave{self.path.replace(':', '_')}_{int(self.t)}.png"
         signal = self.decode()
         t = np.arange(len(signal)) / self.sample_rate \
-            + self.timestamp # TODO: Check if OK
+            + self.t # TODO: Check if OK
         plot_xy(
             x=t,
             y=signal,
             xlabel="Time [s]",
             ylabel="Amplitude", #TODO: units? -> Config
             title=f"Waveform for signal path: {self.path}",
-            output_path=output_path
+            output_path=path
         )
 
     def compute_spectrum(self, fmin: float, fmax: float) \
@@ -52,3 +54,18 @@ class WaveformData(BaseData):
         filtered_spectrum = magintude[(freqs >= fmin) & (freqs <= fmax)]
         filtered_freqs = freqs[(freqs >= fmin) & (freqs <= fmax)]
         return filtered_freqs, filtered_spectrum
+    
+    @staticmethod
+    def parse_obj(data: dict) -> "WaveformData": # De momento solo lo necesario
+        """Parse a dictionary into a WaveformData object.""" 
+        return WaveformData(
+            links=data["_links"],
+            factor=data["factor"],
+            snap_t=data["snap_t"],
+            speed=data["speed"],
+            unit_id=data["unit_id"],
+            path=data["path"],
+            t=data["t"],
+            sample_rate=data["sample_rate"],
+            data=data["data"]
+        )

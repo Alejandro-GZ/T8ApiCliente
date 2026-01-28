@@ -43,7 +43,7 @@ def plot_xy(
         plt.ylabel(ylabel)
         plt.title(title)
         plt.grid(True)
-
+        
         output_path.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(output_path, dpi=150, bbox_inches="tight")
-        plt.close()
+        plt.show()
