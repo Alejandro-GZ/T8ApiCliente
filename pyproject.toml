@@ -5,6 +5,7 @@ description = "Paquete de python para obtener y manipular los datos recolectados
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "build>=1.4.0",
     "click>=8.3.1",
     "matplotlib>=3.10.8",
     "pandas>=3.0.0",
@@ -23,3 +24,6 @@ line-length = 88
 lint.select = ["ANN", "Q", "E", "F", "UP", "B", "I", "Q"]
 lint.ignore = []
 lint.exclude = []
+
+[project.scripts]
+t8-cli = "t8_client.cli:cli"
