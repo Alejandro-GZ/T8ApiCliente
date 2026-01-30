@@ -18,9 +18,6 @@ class BaseData:
     t: float
     unit_id: int
     
-    def decode(self) -> np.ndarray: #TODO: Add description (@see decode_base64_signal)
-        return decode_base64_signal(self.data)
-    
-    
-    
-    
+    def decode(self,dtype: np.dtype=np.int16) -> np.ndarray: 
+        #TODO: Add description (@see decode_base64_signal)
+        return decode_base64_signal(self.data,dtype=dtype)
