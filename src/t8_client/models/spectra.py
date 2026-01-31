@@ -15,10 +15,11 @@ class SpectraData(BaseData):
     
     def plot(self) -> None: 
         """Plot the spectra data.""" #TODO: Add more description (@see plot_xy)
-        path = f"data/plots/spectra/ \
-                spectrum_{self.path.replace(':', '_')}_{int(self.t)}.png"
+        path = "data/plots/spectra/" + \
+                f"spectrum_{self.path.replace(':', '_')}_{int(self.t)}.png"
         spec = self.decode(dtype=np.int16)
-        freq = np.linspace(self.min_freq, self.max_freq, len(self.data))
+        num_bins = len(spec)
+        freq = np.linspace(self.min_freq, self.max_freq, num_bins)
         plot_xy(
             x=freq,
             y=spec,

@@ -37,7 +37,7 @@ def plot_xy(
         """
         output_path = Path(output_path)
 
-        plt.figure()
+        plt.figure(figsize=(12, 6))
         plt.plot(x, y)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)

@@ -13,11 +13,12 @@ class WaveformData(BaseData):
     sample_rate: int
     
     def plot(self) -> None: #TODO: Add description (@see plot_xy)
-        path = f"data/plots/waves/ \
-                wave{self.path.replace(':', '_')}_{int(self.t)}.png"
-        signal = self.decode()
-        t = np.arange(len(signal)) / self.sample_rate \
-            + self.t # TODO: Check if OK
+        path = "data/plots/waves/" + \
+                f"wave{self.path.replace(':', '_')}_{int(self.t)}.png"
+        signal = self.decode(dtype=np.int16)
+        samples = len(signal)
+        duration = samples / self.sample_rate
+        t = np.linspace(0, duration, samples)
         plot_xy(
             x=t,
             y=signal,

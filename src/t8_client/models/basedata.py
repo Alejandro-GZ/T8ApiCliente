@@ -20,4 +20,4 @@ class BaseData:
     
     def decode(self,dtype: np.dtype=np.int16) -> np.ndarray: 
         #TODO: Add description (@see decode_base64_signal)
-        return decode_base64_signal(self.data,dtype=dtype)
+        return decode_base64_signal(self.data,dtype=dtype) * self.factor
