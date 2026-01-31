@@ -5,6 +5,7 @@ from datetime import datetime as dt
 import click
 
 from .api import (
+    compute_and_save_spectrum,
     get_spectrum_data,
     get_spectrum_list,
     get_wave_data,
@@ -33,7 +34,7 @@ def cli(ctx: click.Context, host: str, mirror: bool) -> None:
 @click.option("--point", "-p", required=True, help="Data point")
 @click.option("--proc-mode", "-m", required=True, help="Processing mode")
 @click.pass_context
-def wave_list(ctx: click.Context, machine: str, point: str, proc_mode: str) -> None:
+def list_waves(ctx: click.Context, machine: str, point: str, proc_mode: str) -> None:
     """Get list of waveform timestamps"""
     timestamps = get_wave_list(machine, point, proc_mode)
     click.echo(f"Waveform ISO dates and timestamps for {machine}/{point}/{proc_mode}:")
@@ -46,7 +47,7 @@ def wave_list(ctx: click.Context, machine: str, point: str, proc_mode: str) -> N
 @click.option("--point", "-p", required=True, help="Data point")
 @click.option("--proc-mode", "-m", required=True, help="Processing mode")
 @click.pass_context
-def spectrum_list(ctx: click.Context, machine: str, point: str, proc_mode: str) -> None:
+def list_spectra(ctx: click.Context, machine: str, point: str, proc_mode: str) -> None:
     """Get list of spectra timestamps"""
     timestamps = get_spectrum_list(machine, point, proc_mode)
     click.echo(f"Spectra ISO dates and timestamps for {machine}/{point}/{proc_mode}:")
@@ -61,7 +62,7 @@ def spectrum_list(ctx: click.Context, machine: str, point: str, proc_mode: str) 
 @click.option("--timestamp", "-t", default="0", help="Timestamp (default: latest)")
 @click.option("--datetime", "-d", default=None, help="Datetime (optional)")
 @click.pass_context
-def wave_data(ctx: click.Context, machine: str, point: str,
+def get_wave(ctx: click.Context, machine: str, point: str,
               proc_mode: str, timestamp: str, datetime: str = None) -> None:
     """Get waveform data"""
     timestamp = timestamp if datetime is None \
@@ -77,7 +78,7 @@ def wave_data(ctx: click.Context, machine: str, point: str,
 @click.option("--timestamp", "-t", default="0", help="Timestamp (default: latest)")
 @click.option("--datetime", "-d", default=None, help="Datetime (optional)")
 @click.pass_context
-def spectrum_data(ctx: click.Context, machine: str, point: str, 
+def get_spectrum(ctx: click.Context, machine: str, point: str, 
                   proc_mode: str, timestamp: str, datetime: str = None) -> None:
     """Get spectra data"""
     timestamp = timestamp if datetime is None \
@@ -117,3 +118,10 @@ def plot_spectrum(ctx: click.Context, machine: str, point: str,
     plot_spectrum_data(machine, point, proc_mode, timestamp)
     click.echo(f"Spectra plot displayed for {machine}/{point}/{proc_mode}")
 
+@cli.command()
+@click.option("--wave", "-w", required=True, help="Waveform file path")
+@click.pass_context
+def compute_spectrum(ctx: click.Context, wave: str) -> None:
+    """Compute and plot spectrum from waveform file"""
+    compute_and_save_spectrum(wave)
+    click.echo(f"Spectrum computed and saved from waveform file {wave}")

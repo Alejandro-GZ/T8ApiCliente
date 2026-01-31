@@ -33,7 +33,7 @@ def get_spectrum_list(machine: str, point: str, proc_mode: str) \
     return timestamps
 
 def get_wave_data(machine: str, point: str, proc_mode: str,
-                      timestamp: str=0) -> dict:
+                      timestamp: str=0, save: bool=True) -> dict:
     """Retrieve waveform data for a specific timestamp and save to JSON file.
        If timestamp is 0, retrieves the latest waveform.
     """
@@ -43,13 +43,14 @@ def get_wave_data(machine: str, point: str, proc_mode: str,
     response.raise_for_status()
     
     data = response.json()
-    save_json_to_file(data, machine, point, proc_mode, timestamp, "wave", 
+    if save:
+        save_json_to_file(data, machine, point, proc_mode, timestamp, "wave", 
                       Path("data/waves"))
     
     return data
 
 def get_spectrum_data(machine: str, point: str, proc_mode: str, 
-                      timestamp: str=0) -> dict:
+                      timestamp: str=0, save: bool=True) -> dict:
     """Retrieve spectra data for a specific timestamp and save to JSON file.
        If timestamp is 0, retrieves the latest spectra.
     """
@@ -59,7 +60,8 @@ def get_spectrum_data(machine: str, point: str, proc_mode: str,
     response.raise_for_status()
     
     data = response.json()
-    save_json_to_file(data, machine, point, proc_mode, timestamp, "spectrum", 
+    if save:
+        save_json_to_file(data, machine, point, proc_mode, timestamp, "spectrum", 
                       Path("data/spectra"))
 
     return data
@@ -77,6 +79,51 @@ def plot_spectrum_data(machine: str, point: str, proc_mode: str,
     spectrum_data = get_spectrum_data(machine, point, proc_mode, timestamp)
     spectra = SpectraData.parse_obj(spectrum_data)
     spectra.plot()
+
+def compute_and_save_spectrum(wave_file: str) -> None:
+    """Compute and save spectrum from a waveform file."""
+    waveform: WaveformData = WaveformData.parse_obj(json.load(open(wave_file)))
+    path_parts = wave_file.split("_")
+    # Indexes
+    n_parts = len(path_parts) # Contar las partes divididas por "_" 
+                              # Por defecto 5, si hay más se supone 
+                              # que es por el nombre de la máquina
+    machine = path_parts[1:n_parts - 3] if n_parts > 5 else [path_parts[1]]
+    machine = "_".join(machine) \
+        if isinstance(machine, list) else machine # Unir si es lista
+    point = path_parts[n_parts - 3]
+    proc_mode = path_parts[n_parts - 2]
+    timestamp = path_parts[n_parts - 1].split(".")[0] # Quitar extensión
+    
+    # Fetching del espectro
+    api_spectr = get_spectrum_data(machine=machine,
+                                  point=point, 
+                                  proc_mode=proc_mode, 
+                                  timestamp=timestamp,
+                                  save=False)
+    # Computación del espectro
+    spectra: tuple = waveform.compute_spectrum(
+        fmin=api_spectr["min_freq"], 
+        fmax=api_spectr["max_freq"]) # Tupla frecuencia espectro
+    # Organizar data
+    data = {
+        "frequencies": spectra[0].tolist(),
+        "amplitudes": spectra[1].tolist(),
+        "min_freq": api_spectr["min_freq"],
+        "max_freq": api_spectr["max_freq"],
+    }
+    
+    # Save spectrum data to JSON file
+    save_json_to_file(
+        data=data,
+        machine=machine,
+        point=point,
+        proc_mode=proc_mode,
+        timestamp=timestamp,
+        type="spectrum",
+        output_dir=Path("data/spectra"),
+        is_computed=True
+    )
 
 # Helper functions
 def retrieve_timestamps(json_response: dict) -> list[str]:
@@ -98,13 +145,16 @@ def format_item(item: dict) -> str:
     return f"[{iso_date} / {ts_str}]"
 
 def save_json_to_file(data: dict, machine: str, point: str, proc_mode: str, 
-                      timestamp: str, type: str, output_dir: Path) -> None:
+                      timestamp: str, type: str, output_dir: Path, 
+                      is_computed: bool=False) -> None:
     """Save JSON data to a specified file path."""
     # Create directory if it doesn't exist
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Save to JSON file
-    filename = f"{type}_{machine}_{point}_{proc_mode}_{timestamp}.json"
+    filename = f"{type}_{machine}_{point}_{proc_mode}_{timestamp}"
+    filename += "_computed" if is_computed else "" 
+    filename += ".json"
     filepath = f"{output_dir}/{filename}"
     
     with open(filepath, "w") as f:
