@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -81,8 +82,20 @@ def plot_spectrum_data(machine: str, point: str, proc_mode: str,
 def retrieve_timestamps(json_response: dict) -> list[str]:
     """Extract timestamps from the JSON response."""
     items = json_response["_items"]
-    timestamps = [item["_links"]["self"].split("/")[-1] for item in items]
+    timestamps = [ format_item(item)
+                  for item in items]
     return timestamps
+    
+def format_item(item: dict) -> str:
+    ts_str = item["_links"]["self"].split("/")[-1] 
+    ts_val = float(ts_str)
+    if(ts_val == 0):
+        return "[latest / 0]"
+    dt_obj = datetime.fromtimestamp(ts_val, tz=UTC)
+
+    iso_date = dt_obj.isoformat()
+    
+    return f"[{iso_date} / {ts_str}]"
 
 def save_json_to_file(data: dict, machine: str, point: str, proc_mode: str, 
                       timestamp: str, type: str, output_dir: Path) -> None:

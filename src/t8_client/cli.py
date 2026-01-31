@@ -34,7 +34,7 @@ def cli(ctx: click.Context, host: str, mirror: bool) -> None:
 def wave_list(ctx: click.Context, machine: str, point: str, proc_mode: str) -> None:
     """Get list of waveform timestamps"""
     timestamps = get_wave_list(machine, point, proc_mode)
-    click.echo(f"Waveform timestamps for {machine}/{point}/{proc_mode}:")
+    click.echo(f"Waveform ISO dates and timestamps for {machine}/{point}/{proc_mode}:")
     for ts in timestamps:
         click.echo(f"  {ts}")
 
@@ -47,7 +47,7 @@ def wave_list(ctx: click.Context, machine: str, point: str, proc_mode: str) -> N
 def spectrum_list(ctx: click.Context, machine: str, point: str, proc_mode: str) -> None:
     """Get list of spectra timestamps"""
     timestamps = get_spectrum_list(machine, point, proc_mode)
-    click.echo(f"Spectra timestamps for {machine}/{point}/{proc_mode}:")
+    click.echo(f"Spectra ISO dates and timestamps for {machine}/{point}/{proc_mode}:")
     for ts in timestamps:
         click.echo(f"  {ts}")
 
