@@ -12,6 +12,7 @@ from t8_client.api import (
     plot_wave_data,
 )
 from t8_client.models import SpectraData, WaveformData
+from t8_client.models.config import ProcMode
 
 
 def test_get_wave_list()->None:
@@ -164,6 +165,12 @@ def test_compute_and_save_spectrum()->None:
                     t="",
                     sample_rate="",
                     data=""
+                )), \
+         patch("t8_client.api.get_proc_mode",
+               return_value=ProcMode(
+                    name="",
+                    max_freq=2,
+                    min_freq=1
                 )), \
          patch("t8_client.models.WaveformData.compute_spectrum",
                return_value=fake_computed_spectrum), \
