@@ -12,21 +12,84 @@ from .models.waveform import WaveformData
 
 def get_wave_list( machine: str, point: str, proc_mode: str) \
     -> list[str]:
-    """Retrieve a list of waveform timestamps from the API."""
+    """
+    Retrieve a list of waveform timestamps from the API for a given machine and point.
+
+    This function fetches waveform data from the API endpoint corresponding to the 
+    specified `machine`, `point`, and `proc_mode`, and returns a list of timestamps 
+    representing available waveform captures.
+
+    Parameters
+    ----------
+    machine : str
+        Identifier of the machine for which to retrieve waveform data.
+    point : str
+        Measurement point or sensor identifier on the machine.
+    proc_mode : str
+        Processing mode or data type for the waveform data.
+
+    Returns
+    -------
+    list[str]
+        A list of timestamps (as strings) indicating available waveform records.
+    """
     
     timestamps = retrieve_timestamps(fetch(f"waves/{machine}/{point}/{proc_mode}"))
     return timestamps
 
 def get_spectrum_list(machine: str, point: str, proc_mode: str) \
     -> list[str]:
-    """Retrieve a list of spectra timestamps from the API."""
+    """
+    Retrieve a list of spectral timestamps from the API for a given machine and point.
+
+    This function fetches spectral data from the API endpoint corresponding to the 
+    specified `machine`, `point`, and `proc_mode`, and returns a list of timestamps 
+    representing available spectral measurements.
+
+    Parameters
+    ----------
+    machine : str
+        Identifier of the machine for which to retrieve spectral data.
+    point : str
+        Measurement point or sensor identifier on the machine.
+    proc_mode : str
+        Processing mode or data type for the spectral data.
+
+    Returns
+    -------
+    list[str]
+        A list of timestamps (as strings) indicating available spectral records.
+    """
     timestamps = retrieve_timestamps(fetch(f"spectra/{machine}/{point}/{proc_mode}"))
     return timestamps
 
 def get_wave_data(machine: str, point: str, proc_mode: str,
                       timestamp: str=0, save: bool=True) -> dict:
-    """Retrieve waveform data for a specific timestamp and save to JSON file.
-       If timestamp is 0, retrieves the latest waveform.
+    """
+    Retrieve waveform data for a specific timestamp and optionally save it to a JSON file.
+
+    This function fetches waveform data from the API for the specified `machine`, 
+    `point`, and `proc_mode`. If `timestamp` is 0, it retrieves the latest available 
+    waveform. Optionally, the data can be saved as a JSON file under the `data/waves` 
+    directory.
+
+    Parameters
+    ----------
+    machine : str
+        Identifier of the machine for which to retrieve waveform data.
+    point : str
+        Measurement point or sensor identifier on the machine.
+    proc_mode : str
+        Processing mode or data type for the waveform data.
+    timestamp : str, optional
+        Timestamp of the waveform to retrieve. Defaults to 0 (latest waveform).
+    save : bool, optional
+        Whether to save the retrieved data as a JSON file. Default is True.
+
+    Returns
+    -------
+    dict
+        Dictionary containing the waveform data retrieved from the API.
     """
     data = fetch(f"waves/{machine}/{point}/{proc_mode}/{timestamp}")
     if save:
@@ -36,8 +99,31 @@ def get_wave_data(machine: str, point: str, proc_mode: str,
 
 def get_spectrum_data(machine: str, point: str, proc_mode: str, 
                       timestamp: str=0, save: bool=True) -> dict:
-    """Retrieve spectra data for a specific timestamp and save to JSON file.
-       If timestamp is 0, retrieves the latest spectra.
+    """
+    Retrieve spectral data for a specific timestamp and optionally save it to a JSON file.
+
+    This function fetches spectral data from the API for the specified `machine`, 
+    `point`, and `proc_mode`. If `timestamp` is 0, it retrieves the latest available 
+    spectrum. Optionally, the data can be saved as a JSON file under the `data/spectra` 
+    directory.
+
+    Parameters
+    ----------
+    machine : str
+        Identifier of the machine for which to retrieve spectral data.
+    point : str
+        Measurement point or sensor identifier on the machine.
+    proc_mode : str
+        Processing mode or data type for the spectral data.
+    timestamp : str, optional
+        Timestamp of the spectrum to retrieve. Defaults to 0 (latest spectrum).
+    save : bool, optional
+        Whether to save the retrieved data as a JSON file. Default is True.
+
+    Returns
+    -------
+    dict
+        Dictionary containing the spectral data retrieved from the API.
     """
     data = fetch(f"spectra/{machine}/{point}/{proc_mode}/{timestamp}")
     if save:
@@ -47,20 +133,83 @@ def get_spectrum_data(machine: str, point: str, proc_mode: str,
 
 def plot_wave_data(machine: str, point: str, proc_mode: str, 
                       timestamp: str=0) -> None:
-    """Plot waveform data using the WaveformData model."""
+    """
+    Retrieve and plot waveform data using the WaveformData model.
+
+    This function fetches waveform data from the API for the specified `machine`, 
+    `point`, and `proc_mode`. If `timestamp` is 0, it retrieves the latest available 
+    waveform. The data is parsed into a `WaveformData` object and plotted using 
+    its `plot` method.
+
+    Parameters
+    ----------
+    machine : str
+        Identifier of the machine for which to plot waveform data.
+    point : str
+        Measurement point or sensor identifier on the machine.
+    proc_mode : str
+        Processing mode or data type for the waveform data.
+    timestamp : str, optional
+        Timestamp of the waveform to plot. Defaults to 0 (latest waveform).
+
+    Returns
+    -------
+    None
+    """
     wave_data = get_wave_data(machine, point, proc_mode, timestamp, save=False)
     waveform = WaveformData.parse_obj(wave_data)
     waveform.plot()
     
 def plot_spectrum_data(machine: str, point: str, proc_mode: str, 
                       timestamp: str=0) -> None:
-    """Plot spectra data using the SpectraData model."""
+    """
+    Retrieve and plot spectral data using the SpectraData model.
+
+    This function fetches spectral data from the API for the specified `machine`, 
+    `point`, and `proc_mode`. If `timestamp` is 0, it retrieves the latest available 
+    spectrum. The data is parsed into a `SpectraData` object and plotted using 
+    its `plot` method.
+
+    Parameters
+    ----------
+    machine : str
+        Identifier of the machine for which to plot spectral data.
+    point : str
+        Measurement point or sensor identifier on the machine.
+    proc_mode : str
+        Processing mode or data type for the spectral data.
+    timestamp : str, optional
+        Timestamp of the spectrum to plot. Defaults to 0 (latest spectrum).
+
+    Returns
+    -------
+    None
+    """
     spectrum_data = get_spectrum_data(machine, point, proc_mode, timestamp, save=False)
     spectra = SpectraData.parse_obj(spectrum_data)
     spectra.plot()
 
 def compute_and_save_spectrum(wave_file: str) -> None:
-    """Compute and save spectrum from a waveform file."""
+    """
+    Compute the spectrum from a waveform file and save it as a JSON file.
+
+    This function reads a waveform from a JSON file, parses it into a 
+    `WaveformData` object, and extracts the machine, point, processing mode, 
+    and timestamp. It then retrieves spectral parameters from the API, computes 
+    the spectrum within the specified frequency range using the waveform's 
+    `compute_spectrum` method, and organizes the frequency and amplitude data 
+    into a dictionary. Finally, the spectrum data is saved as a JSON file under 
+    the `data/spectra` directory with a flag indicating it was computed locally.
+
+    Parameters
+    ----------
+    wave_file : str
+        Path to the JSON file containing the waveform data.
+
+    Returns
+    -------
+    None
+    """
     waveform: WaveformData = WaveformData.parse_obj(json.load(open(wave_file)))
     machine, point, proc_mode = waveform.path.split(":") \
         if ":" in waveform.path else ("unknown", "unknown", "unknown")
@@ -99,7 +248,7 @@ def compute_and_save_spectrum(wave_file: str) -> None:
 
 # Helper functions
 def get_base_url()-> str:
-    """Lee la variable de entorno en tiempo de ejecución, no al importar"""
+    """Reads the base URL from environment variables."""
     return os.getenv("T8_HOST", "valor_por_defecto")
 
 def get_auth()-> HTTPBasicAuth:
@@ -119,6 +268,8 @@ def retrieve_timestamps(json_response: dict) -> list[str]:
     return timestamps
     
 def format_item(item: dict) -> str:
+    """ Format a timestamp from a dictionary item into a string 
+    with ISO date and raw timestamp. """
     ts_str = item["_links"]["self"].split("/")[-1] 
     ts_val = float(ts_str)
     if(ts_val == 0):
