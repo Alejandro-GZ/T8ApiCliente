@@ -8,6 +8,7 @@ from t8_client.api import (
     get_spectrum_list,
     get_wave_data,
     get_wave_list,
+    list_proc_modes,
     plot_spectrum_data,
     plot_wave_data,
 )
@@ -187,3 +188,56 @@ def test_compute_and_save_spectrum()->None:
         compute_and_save_spectrum("wave_MAC_POI_PROCM_0.json")
 
         mock_save.assert_called_once()
+        
+##### Version 0.1.1 ######
+def test_list_proc_modes()->None:
+    fake_json = {
+        "machines": [
+            {
+                "name": "M1",
+                "points": [
+                    {
+                        "name": "P1",
+                        "proc_modes": [
+                            {"name": "raw"},
+                            {"name": "avg"}
+                        ]
+                    },
+                    {
+                        "name": "P2",
+                        "proc_modes": [
+                            {"name": "raw"}
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "M2",
+                "points": [
+                    {
+                        "name": "P3",
+                        "proc_modes": [ 
+                            {"name": "filtered"}
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+
+    with patch("t8_client.api.get_base_url", return_value="http://api"), \
+         patch("t8_client.api.fetch", return_value=fake_json):
+
+        result = list_proc_modes()
+
+        expected = {
+            "M1": {
+                "P1": ["raw", "avg"],
+                "P2": ["raw"]
+            },
+            "M2": {
+                "P3": ["filtered"]
+            }
+        }
+
+        assert result == expected
