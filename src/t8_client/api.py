@@ -62,17 +62,10 @@ def plot_spectrum_data(machine: str, point: str, proc_mode: str,
 def compute_and_save_spectrum(wave_file: str) -> None:
     """Compute and save spectrum from a waveform file."""
     waveform: WaveformData = WaveformData.parse_obj(json.load(open(wave_file)))
-    path_parts = wave_file.split("_")
-    # Indexes
-    n_parts = len(path_parts) # Contar las partes divididas por "_" 
-                              # Por defecto 5, si hay más se supone 
-                              # que es por el nombre de la máquina
-    machine = path_parts[1:n_parts - 3] if n_parts > 5 else [path_parts[1]]
-    machine = "_".join(machine) \
-        if isinstance(machine, list) else machine # Unir si es lista
-    point = path_parts[n_parts - 3]
-    proc_mode = path_parts[n_parts - 2]
-    timestamp = path_parts[n_parts - 1].split(".")[0] # Quitar extensión
+    machine, point, proc_mode = waveform.path.split(":") \
+        if ":" in waveform.path else ("unknown", "unknown", "unknown")
+    timestamp = waveform.links["self"].split("/")[-1] \
+        if "self" in waveform.links else "0"
     
     # Fetching del espectro
     api_spectr = get_spectrum_data(machine=machine,
