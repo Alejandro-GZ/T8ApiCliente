@@ -115,3 +115,36 @@ def test_parse_datetime() -> None:
     )
 
     assert isinstance(ts, int)
+
+##### Version 0.1.1 ######
+def test_list_procs(runner: CliRunner) -> None:
+    mock_procs = {
+        "raw": {
+            "P1": ["raw"],
+            "P2": ["raw"]
+        },
+        "avg": {
+            "P1": ["avg", "avg_10"],
+            "P3": ["avg"]
+        }
+    }
+
+    with patch("t8_client.cli.list_proc_modes",
+               return_value=mock_procs):
+
+        result = runner.invoke(
+            cli,
+            ["list-procs"]
+        )
+
+        assert result.exit_code == 0
+        assert "Available Processing Modes:" in result.output
+        assert "raw" in result.output
+        assert "  - P1" in result.output
+        assert "  - P2" in result.output
+        assert "avg" in result.output
+        assert "  - P1" in result.output
+        assert "      * avg" in result.output
+        assert "      * avg_10" in result.output
+        assert "  - P3" in result.output
+        assert "      * avg" in result.output
