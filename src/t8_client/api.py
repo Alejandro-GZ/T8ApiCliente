@@ -64,8 +64,8 @@ def compute_and_save_spectrum(wave_file: str) -> None:
     waveform: WaveformData = WaveformData.parse_obj(json.load(open(wave_file)))
     machine, point, proc_mode = waveform.path.split(":") \
         if ":" in waveform.path else ("unknown", "unknown", "unknown")
-    timestamp = waveform.links["self"].split("/")[-1] \
-        if "self" in waveform.links else "0"
+    timestamp = int(waveform.snap_t) if waveform.snap_t is not None \
+        and waveform.snap_t != "" else 0
     
     # Fetching del espectro
     api_spectr = get_spectrum_data(machine=machine,
