@@ -9,10 +9,42 @@ from .basedata import BaseData
 
 @dataclass
 class WaveformData(BaseData):
-    """Clase que representa los datos de forma de onda.""" #TODO: Add more description
+    """
+    Class representing waveform data, extending BaseData.
+
+    This data class contains all common attributes from `BaseData` and adds 
+    properties specific to waveform measurements, such as the sample rate 
+    used during data acquisition.
+
+    Attributes
+    ----------
+    sample_rate : int
+        Sampling rate of the waveform data in Hz.
+    """
     sample_rate: int
     
-    def plot(self) -> None: #TODO: Add description (@see plot_xy)
+    def plot(self) -> None: 
+        """
+    Plot the waveform data and save the figure as a PNG file.
+
+    This method decodes the waveform data using `self.decode`, generates a 
+    time axis based on the `sample_rate` and number of samples, and plots 
+    the amplitude of the waveform using the `plot_xy` function. The resulting 
+    plot is saved under the path `data/plots/waves/`.
+
+    The filename is automatically generated from `self.path` and the current 
+    time `self.t`. Labels and title are added for clarity.
+
+    Notes
+    -----
+    - The y-axis label currently uses a placeholder "Amplitude"; units can 
+      be configured if available.
+    - See also `plot_xy` for details on plotting implementation.
+
+    Returns
+    -------
+    None
+    """
         path = "data/plots/waves/" + \
                 f"wave{self.path.replace(':', '_')}_{int(self.t)}.png"
         signal = self.decode(dtype=np.int16)
@@ -58,7 +90,26 @@ class WaveformData(BaseData):
     
     @staticmethod
     def parse_obj(data: dict) -> "WaveformData": # De momento solo lo necesario
-        """Parse a dictionary into a WaveformData object.""" 
+        """
+    Create a WaveformData instance from a dictionary.
+
+    This static method parses the required fields from a dictionary and 
+    returns a new `WaveformData` object. It assumes the dictionary contains 
+    all necessary keys corresponding to the attributes of `WaveformData`.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary containing the data to populate the `WaveformData` object.
+        Expected keys include:
+        `_links`, `factor`, `snap_t`, `speed`, `unit_id`, `path`, `t`, 
+        `sample_rate`, `data`.
+
+    Returns
+    -------
+    WaveformData
+        A new instance of `WaveformData` initialized with the values from `data`.
+    """
         return WaveformData(
             links=data["_links"],
             factor=data["factor"],
