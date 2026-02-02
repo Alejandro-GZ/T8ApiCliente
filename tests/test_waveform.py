@@ -3,6 +3,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+from t8_client.models.config import Unit
 from t8_client.models.waveform import WaveformData
 
 
@@ -26,13 +27,14 @@ def test_plot_calls_plot_xy(waveform: WaveformData) -> None:
     with patch.object(waveform, "decode", return_value=fake_signal), \
          patch("t8_client.models.waveform.plot_xy") as mock_plot:
 
-        waveform.plot()
+        waveform.plot(Unit(property_name="Amplitude", label="V",
+                          id=-1,factor=1.0,property_label=""))
 
         mock_plot.assert_called_once()
 
         args, kwargs = mock_plot.call_args
-        assert kwargs["xlabel"] == "Time [s]"
-        assert kwargs["ylabel"] == "Amplitude"
+        assert kwargs["xlabel"] == "Time (s)"
+        assert kwargs["ylabel"] == "Amplitude(V)"
         assert "Waveform for signal path" in kwargs["title"]
         assert kwargs["y"].tolist() == fake_signal.tolist()
 

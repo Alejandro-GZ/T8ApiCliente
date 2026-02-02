@@ -12,7 +12,7 @@ from t8_client.api import (
     plot_wave_data,
 )
 from t8_client.models import SpectraData, WaveformData
-from t8_client.models.config import ProcMode
+from t8_client.models.config import ProcMode, Unit
 
 
 def test_get_wave_list()->None:
@@ -100,6 +100,8 @@ def test_get_spectrum_data()->None:
 
 def test_plot_wave_data()->None:
     fake_wave = {"wave": [1, 2, 3]}
+    fake_unit = Unit(property_name="Amplitude", label="V",
+                          id=-1,factor=1.0,property_label="")
 
     with patch("t8_client.api.get_wave_data",
                return_value=fake_wave), \
@@ -115,15 +117,18 @@ def test_plot_wave_data()->None:
                     sample_rate="",
                     data=""
                 )), \
+         patch("t8_client.api.get_unit_and_property",
+               return_value=fake_unit), \
          patch("t8_client.models.WaveformData.plot") as mock_model:
 
         plot_wave_data("M1", "P1", "raw")
 
-        mock_model.assert_called_once_with()
+        mock_model.assert_called_once_with(fake_unit)
 
 def test_plot_spectrum_data()->None:
     fake_spectrum = {"spectrum": [10, 20]}
-
+    fake_unit = Unit(property_name="Amplitude", label="V",
+                          id=-1,factor=1.0,property_label="")
     with patch("t8_client.api.get_spectrum_data",
                return_value=fake_spectrum), \
          patch("t8_client.models.SpectraData.parse_obj",
@@ -140,11 +145,13 @@ def test_plot_spectrum_data()->None:
                     window="",
                     data=""
                 )), \
+                    patch("t8_client.api.get_unit_and_property",
+               return_value=fake_unit), \
          patch("t8_client.models.SpectraData.plot") as mock_model:
 
         plot_spectrum_data("M1", "P1", "avg")
 
-        mock_model.assert_called_once_with()
+        mock_model.assert_called_once_with(fake_unit)
 
 def test_compute_and_save_spectrum()->None:
     fake_spectrum = {"freq": [1, 2], "amp": [10, 20],

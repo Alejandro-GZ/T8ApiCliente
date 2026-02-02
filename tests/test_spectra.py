@@ -3,6 +3,7 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
+from t8_client.models.config import Unit
 from t8_client.models.spectra import SpectraData
 
 
@@ -28,7 +29,8 @@ def test_plot_calls_plot_xy(spectra: SpectraData) -> None:
     with patch.object(spectra, "decode", return_value=fake_spec), \
          patch("t8_client.models.spectra.plot_xy") as mock_plot:
 
-        spectra.plot()
+        spectra.plot(Unit(property_name="Amplitude", label="V",
+                          id=-1,factor=1.0,property_label=""))
 
         mock_plot.assert_called_once()
 
@@ -43,8 +45,8 @@ def test_plot_calls_plot_xy(spectra: SpectraData) -> None:
         # Eje Y (magnitud)
         assert kwargs["y"].tolist() == fake_spec.tolist()
 
-        assert kwargs["xlabel"] == "Frequency"
-        assert kwargs["ylabel"] == "Magnitude"
+        assert kwargs["xlabel"] == "Frequency (Hz)"
+        assert kwargs["ylabel"] == "Amplitude(V)"
         assert "Spectra for path" in kwargs["title"]
 
 def test_parse_obj() -> None:
