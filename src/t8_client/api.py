@@ -6,6 +6,8 @@ from pathlib import Path
 import requests
 from requests.auth import HTTPBasicAuth
 
+from t8_client.models.config import ProcMode, Unit
+
 from .models.spectra import SpectraData
 from .models.waveform import WaveformData
 
@@ -197,7 +199,7 @@ def compute_and_save_spectrum(wave_file: str) -> None:
 
     This function reads a waveform from a JSON file, parses it into a 
     `WaveformData` object, and extracts the machine, point, processing mode, 
-    and timestamp. It then retrieves spectral parameters from the API, computes 
+    and timestamp. It then retrieves the frequency range from the API, computes 
     the spectrum within the specified frequency range using the waveform's 
     `compute_spectrum` method, and organizes the frequency and amplitude data 
     into a dictionary. Finally, the spectrum data is saved as a JSON file under 
@@ -218,22 +220,18 @@ def compute_and_save_spectrum(wave_file: str) -> None:
     timestamp = int(waveform.snap_t) if waveform.snap_t is not None \
         and waveform.snap_t != "" else 0
     
-    # Fetching del espectro
-    api_spectr = get_spectrum_data(machine=machine,
-                                  point=point, 
-                                  proc_mode=proc_mode, 
-                                  timestamp=timestamp,
-                                  save=False)
+    # Fetching de la config
+    proc_mode_obj = get_proc_mode(machine, point, proc_mode)
     # Computación del espectro
     spectra: tuple = waveform.compute_spectrum(
-        fmin=api_spectr["min_freq"], 
-        fmax=api_spectr["max_freq"]) # Tupla frecuencia espectro
+        fmin=proc_mode_obj.min_freq, 
+        fmax=proc_mode_obj.max_freq) # Tupla frecuencia espectro
     # Organizar data
     data = {
         "frequencies": spectra[0].tolist(),
         "amplitudes": spectra[1].tolist(),
-        "min_freq": api_spectr["min_freq"],
-        "max_freq": api_spectr["max_freq"],
+        "min_freq": proc_mode_obj.min_freq,
+        "max_freq": proc_mode_obj.max_freq,
     }
     
     # Save spectrum data to JSON file
@@ -297,3 +295,39 @@ def save_json_to_file(data: dict, machine: str, point: str, proc_mode: str,
     
     with open(filepath, "w") as f:
         json.dump(data, f, indent=2)
+
+###### Version 0.1.1 ######
+def get_proc_mode(machine: str, point: str, proc_mode:str) -> ProcMode:
+    config = fetch("confs/0/") # Diccionario de configuraciones
+    machine_conf = next(
+        (m for m in config["machines"] if m.get("name") == machine),
+        {}
+    )# Obtener la maquina
+    point_conf = next(
+        (p for p in machine_conf.get("points", []) if p.get("name") == point),
+        {}
+    ) # Obtener el punto
+    proc_mode_conf = next(
+        (pm for pm in point_conf.get("proc_modes", []) if pm.get("name") == proc_mode),
+        {}
+    ) # Obtener el modo de proceso
+    return ProcMode.parse_obj(proc_mode_conf)
+
+def get_unit_and_property(unit_id:int) \
+    -> Unit:
+    config = fetch("confs/0/") # Diccionario de configuraciones
+    unit_conf = next(
+        (u for u in config["units"] if u.get("id") == unit_id),
+        {}
+    ) # Obtener la unidad
+    prop_id = unit_conf.get("property_id", -1) # Obtener el id de la propiedad
+    unit_obj = Unit.parse_unit(unit_conf) # Crear objeto unidad
+    property_conf = next(
+        (p for p in config["properties"].values() if p.get("id") == prop_id),
+        {}
+    ) # Obtener la propiedad
+    unit_obj.set_property(
+        property_name=property_conf.get("name", "unknown"),
+        property_label=property_conf.get("label", "unknown")
+    )
+    return unit_obj
