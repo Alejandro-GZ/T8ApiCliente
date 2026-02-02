@@ -162,7 +162,8 @@ def plot_wave_data(machine: str, point: str, proc_mode: str,
     """
     wave_data = get_wave_data(machine, point, proc_mode, timestamp, save=False)
     waveform = WaveformData.parse_obj(wave_data)
-    waveform.plot()
+    unit = get_unit_and_property(waveform.unit_id)
+    waveform.plot(unit)
     
 def plot_spectrum_data(machine: str, point: str, proc_mode: str, 
                       timestamp: str=0) -> None:
@@ -191,7 +192,8 @@ def plot_spectrum_data(machine: str, point: str, proc_mode: str,
     """
     spectrum_data = get_spectrum_data(machine, point, proc_mode, timestamp, save=False)
     spectra = SpectraData.parse_obj(spectrum_data)
-    spectra.plot()
+    unit = get_unit_and_property(spectra.unit_id)
+    spectra.plot(unit)
 
 def compute_and_save_spectrum(wave_file: str) -> None:
     """
@@ -323,7 +325,7 @@ def get_unit_and_property(unit_id:int) \
     prop_id = unit_conf.get("property_id", -1) # Obtener el id de la propiedad
     unit_obj = Unit.parse_unit(unit_conf) # Crear objeto unidad
     property_conf = next(
-        (p for p in config["properties"].values() if p.get("id") == prop_id),
+        (p for p in config["properties"] if p.get("id") == prop_id),
         {}
     ) # Obtener la propiedad
     unit_obj.set_property(

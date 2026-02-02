@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 from numpy.fft import fft, fftfreq
 
+from t8_client.models.config import Unit
+
 from ..utils.plotting import plot_xy
 from .basedata import BaseData
 
@@ -23,7 +25,7 @@ class WaveformData(BaseData):
     """
     sample_rate: int
     
-    def plot(self) -> None: 
+    def plot(self, unit:Unit) -> None: 
         """
     Plot the waveform data and save the figure as a PNG file.
 
@@ -54,8 +56,8 @@ class WaveformData(BaseData):
         plot_xy(
             x=t,
             y=signal,
-            xlabel="Time [s]",
-            ylabel="Amplitude", #TODO: units? -> Config
+            xlabel="Time (s)",
+            ylabel=unit.property_name + "(" + unit.label + ")",
             title=f"Waveform for signal path: {self.path}",
             output_path=path
         )

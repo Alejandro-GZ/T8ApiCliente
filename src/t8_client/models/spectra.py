@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from t8_client.models.config import Unit
+
 from ..utils.plotting import plot_xy
 from .basedata import BaseData
 
@@ -28,7 +30,7 @@ class SpectraData(BaseData):
     min_freq: float
     window: int
     
-    def plot(self) -> None: 
+    def plot(self, unit:Unit) -> None: 
         """
     Plot the spectral data and save the figure as a PNG file.
 
@@ -58,8 +60,8 @@ class SpectraData(BaseData):
         plot_xy(
             x=freq,
             y=spec,
-            xlabel="Frequency",
-            ylabel="Magnitude", #TODO: units? -> Config
+            xlabel="Frequency (Hz)",
+            ylabel=unit.property_name + "(" + unit.label + ")",
             title=f"Spectra for path: {self.path}",
             output_path=path
         )

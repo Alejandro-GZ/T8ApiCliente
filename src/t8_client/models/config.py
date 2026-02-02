@@ -15,6 +15,8 @@ class Unit:
             id=dict_obj["id"],
             factor=dict_obj["factor"],
             label=dict_obj["label"],
+            property_name="",
+            property_label="",
         )
     def set_property(self, property_name: str, property_label: str) -> None:
         self.property_name = property_name
