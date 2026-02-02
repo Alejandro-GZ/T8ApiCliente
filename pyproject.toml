@@ -1,6 +1,6 @@
 [project]
 name = "t8apicliente"
-version = "0.1.0"
+version = "0.1.1"
 description = "Paquete de python para obtener y manipular los datos recolectados de la API de un T8"
 readme = "README.md"
 requires-python = ">=3.11"
