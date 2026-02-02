@@ -247,6 +247,21 @@ def compute_and_save_spectrum(wave_file: str) -> None:
         output_dir=Path("data/spectra"),
         is_computed=True
     )
+####### Version 0.1.1 #######
+
+def list_proc_modes()-> dict:
+    """List available processing modes from the configuration."""
+    config = fetch("confs/0/") # Diccionario de configuraciones
+    proc_modes = {}
+    for machine in config["machines"]:
+        machine_name = machine.get("name", "unknown")
+        proc_modes[machine_name] = {}
+        for point in machine.get("points", []):
+            point_name = point.get("name", "unknown")
+            proc_modes[machine_name][point_name] = [
+                pm.get("name", "unknown") for pm in point.get("proc_modes", [])
+            ]
+    return proc_modes
 
 # Helper functions
 def get_base_url()-> str:
@@ -298,7 +313,7 @@ def save_json_to_file(data: dict, machine: str, point: str, proc_mode: str,
     with open(filepath, "w") as f:
         json.dump(data, f, indent=2)
 
-###### Version 0.1.1 ######
+###### Version 0.1.1 - Helpers ######
 def get_proc_mode(machine: str, point: str, proc_mode:str) -> ProcMode:
     config = fetch("confs/0/") # Diccionario de configuraciones
     machine_conf = next(

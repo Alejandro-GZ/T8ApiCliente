@@ -10,6 +10,7 @@ from .api import (
     get_spectrum_list,
     get_wave_data,
     get_wave_list,
+    list_proc_modes,
     plot_spectrum_data,
     plot_wave_data,
 )
@@ -147,6 +148,19 @@ def compute_spectrum(ctx: click.Context, wave: str) -> None:
     """Compute and plot spectrum from waveform file"""
     compute_and_save_spectrum(wave)
     click.echo(f"Spectrum computed and saved from waveform file {wave}")
+##### Version 0.1.1 ######
+@cli.command()
+@click.pass_context
+def list_procs(ctx: click.Context) -> None:
+    """List available processing modes"""
+    procs = list_proc_modes()
+    click.echo("Available Processing Modes:")
+    for proc in procs:
+        click.echo(f"  {proc}")
+        for point in procs[proc]:
+            click.echo(f"    - {point}")
+            for pm in procs[proc][point]:
+                click.echo(f"      * {pm}")
     
     
 # Helper function para conseguir los parámetros
