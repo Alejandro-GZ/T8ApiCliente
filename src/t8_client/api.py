@@ -66,7 +66,8 @@ def get_spectrum_list(machine: str, point: str, proc_mode: str) \
 def get_wave_data(machine: str, point: str, proc_mode: str,
                       timestamp: str=0, save: bool=True) -> dict:
     """
-    Retrieve waveform data for a specific timestamp and optionally save it to a JSON file.
+    Retrieve waveform data for a specific timestamp and optionally 
+    save it to a JSON file.
 
     This function fetches waveform data from the API for the specified `machine`, 
     `point`, and `proc_mode`. If `timestamp` is 0, it retrieves the latest available 
@@ -100,7 +101,8 @@ def get_wave_data(machine: str, point: str, proc_mode: str,
 def get_spectrum_data(machine: str, point: str, proc_mode: str, 
                       timestamp: str=0, save: bool=True) -> dict:
     """
-    Retrieve spectral data for a specific timestamp and optionally save it to a JSON file.
+    Retrieve spectral data for a specific timestamp and optionally save 
+    it to a JSON file.
 
     This function fetches spectral data from the API for the specified `machine`, 
     `point`, and `proc_mode`. If `timestamp` is 0, it retrieves the latest available 
