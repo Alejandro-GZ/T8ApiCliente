@@ -12,6 +12,7 @@ from .api import (
     get_spectrum_list,
     get_wave_data,
     get_wave_list,
+    list_all_params,
     list_all_waves_and_spectra,
     list_proc_modes,
     plot_spectrum_data,
@@ -208,6 +209,31 @@ def waves_and_spectra_to_csv(ctx: click.Context, number: int, verbose: int) -> N
     # Guardamos el DataFrame en un archivo CSV
     df.to_csv("data/api_data/waves_and_spectra.csv", index=False)
     click.echo("Waves and spectra data saved to /data/api_data/waves_and_spectra.csv")
+
+@cli.command()
+@click.pass_context
+def list_params(ctx: click.Context) -> None:
+    """List all available parameters from the API and save to CSV"""
+    procs = list_all_params()
+    output_dir = Path("data/api_data")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    rows = []
+
+    for machine, points in procs.items():
+        for point, proc_modes in points.items():
+            for proc_mode, params_list in proc_modes.items():
+                for params in params_list:
+                    row = {
+                        "machine": machine,
+                        "point": point,
+                        "proc_mode": proc_mode,
+                    }
+                    row.update(params)
+                    rows.append(row)
+
+    df = pd.DataFrame(rows)
+    df.to_csv("data/api_data/available_params.csv", index=False)
+    click.echo("Available parameters saved to /data/api_data/available_params.csv")
     
     
 # Helper function para conseguir los parámetros

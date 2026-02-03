@@ -293,6 +293,24 @@ def list_all_waves_and_spectra(number:int,verbose:int)-> dict:
             dict_data[m][p] = modes_dict
     return dict_data
 
+def list_all_params()-> dict:
+    """List all params from the different machines, points and proc_modes."""
+    config = fetch("confs/0/") # Diccionario de configuraciones
+    proc_modes = {}
+    for machine in config["machines"]:
+        machine_name = machine.get("name", "unknown")
+        proc_modes[machine_name] = {}
+        for point in machine.get("points", []):
+            point_name = point.get("name", "unknown")
+            proc_modes[machine_name][point_name] = {}
+            for pm in point.get("proc_modes", []):
+                if pm == "":
+                    continue
+                pm_name = pm.get("name", "unknown")
+                proc_modes[machine_name][point_name][pm_name] = pm.get("params", {})
+    return proc_modes
+            
+
 # Helper functions
 def get_base_url()-> str:
     """Reads the base URL from environment variables."""
