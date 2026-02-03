@@ -1,4 +1,4 @@
-# Cliente por consola de comandos para la API del T8 - Versión 0.1.0
+# Cliente por consola de comandos para la API del T8 - Versión 0.1.1
 
 El paquete Python desarrollado permite la comunicación con la API del T8 por consola de comandos, de una manera sencilla e intuitiva.
 
@@ -27,7 +27,7 @@ Esto creará una carpeta `dist`, que contiene el archivo `.whl`, para realizar l
 
 <pre>
 
-$ uv pip install dist/t8apicliente-0.1.0-py3-none-any.whl
+$ uv pip install dist/t8apicliente-0.1.1-py3-none-any.whl
 
 </pre>
 
@@ -200,7 +200,16 @@ Options:
 
 </pre>
 
+#### list-procs
+Lista en por consola todos los nombres de las máquinas, sus puntos y los modos de procesamiento de cada punto.
 
+La ayuda devuelve lo siguiente:
+<pre>
+$ t8-cli list-procs --help
+Usage: t8-cli list-procs [OPTIONS]
+
+  List available processing modes
+</pre>
 
 
 ### Comandos get
@@ -412,7 +421,34 @@ Options:
 
 </pre>
 
+#### waves-and-spectra-to-csv
+Obtiene un número con el flag -n y guarda en un csv los n ultimos datos para todas las máquinas, puntos y modos de procesamiento de las ondas y los espectros. Este comando implica mucha carga computacional por lo que se implementa un flag -v para poder observar el progreso, con el flag a 1 se imprime en pantalla cuando se empieza a procesar un nodo (maquina/punto/proc_mode) y con el flag a 2 se imprime en pantalla cuando se empieza a procesar cada timestamp, a parte del comienzo en cada nodo.
 
+La ayuda de la función devuelve lo siguiente:
+
+<pre>
+$ t8-cli waves-and-spectra-to-csv --help
+Usage: t8-cli waves-and-spectra-to-csv [OPTIONS]
+
+  List the <number> latest available waves and spectra.
+
+Options:
+  -n, --number INTEGER   Number of entries to list
+  -v, --verbose INTEGER  Verbose output level
+</pre>
+
+#### list-params
+Lista los parametros para cada nodo (maquina/punto/proc_mode) y los guarda en un CSV en data/api_data/available_params.csv.
+
+La ayuda de la función devuelve lo siguiente:
+
+<pre>
+$ t8-cli list-params --help
+Usage: t8-cli list-params [OPTIONS]
+
+  List all available parameters from the API and save to CSV
+
+</pre>
 
 
 ## Tests
