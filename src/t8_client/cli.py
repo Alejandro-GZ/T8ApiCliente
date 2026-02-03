@@ -1,8 +1,10 @@
 import os
 from datetime import UTC
 from datetime import datetime as dt
+from pathlib import Path
 
 import click
+import pandas as pd
 
 from .api import (
     compute_and_save_spectrum,
@@ -10,6 +12,7 @@ from .api import (
     get_spectrum_list,
     get_wave_data,
     get_wave_list,
+    list_all_waves_and_spectra,
     list_proc_modes,
     plot_spectrum_data,
     plot_wave_data,
@@ -161,6 +164,50 @@ def list_procs(ctx: click.Context) -> None:
             click.echo(f"    - {point}")
             for pm in procs[proc][point]:
                 click.echo(f"      * {pm}")
+@cli.command()
+@click.option("--number", "-n", default=3, help="Number of entries to list")
+@click.option("--verbose", "-v", default=0, help="Verbose output level")
+@click.pass_context
+def waves_and_spectra_to_csv(ctx: click.Context, number: int, verbose: int) -> None:
+    """"""
+    dict_data = list_all_waves_and_spectra(number,verbose)
+    rows = []
+    output_dir = Path("data/api_data")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    for m, points in dict_data.items():
+        for p, modes in points.items():
+            for pm, timestamps in modes.items():
+                for ts, data in timestamps.items():
+                    # Creamos un diccionario base con las jerarquías
+                    row = {
+                        "machine": m,
+                        "point": p,
+                        "mode": pm,
+                        "timestamp": ts
+                    }
+                    
+                    # Expandimos los diccionarios que vienen del fetch
+                    # Usamos .get() por si algún timestamp solo tiene 'wave' 
+                    # o solo 'spectrum'
+                    if "wave" in data:
+                        # Esto añade las claves del dict de wave con un prefijo
+                        wave_data = {f"wave_{k}": v for k, v in data["wave"].items()}
+                        row.update(wave_data)
+                    
+                    if "spectrum" in data:
+                        # Esto añade las claves del dict de spectrum con un prefijo
+                        spec_data = {f"spec_{k}": v for k, v in
+                                     data["spectrum"].items()}
+                        row.update(spec_data)
+                    
+                    rows.append(row)
+
+    # Ahora el DataFrame se crea de forma limpia y eficiente
+    df = pd.DataFrame(rows)
+    # Guardamos el DataFrame en un archivo CSV
+    df.to_csv("data/api_data/waves_and_spectra.csv", index=False)
+    click.echo("Waves and spectra data saved to /data/api_data/waves_and_spectra.csv")
     
     
 # Helper function para conseguir los parámetros

@@ -262,6 +262,36 @@ def list_proc_modes()-> dict:
                 pm.get("name", "unknown") for pm in point.get("proc_modes", [])
             ]
     return proc_modes
+def list_all_waves_and_spectra(number:int,verbose:int)-> dict:
+    """List the <number> latest available waves and spectra."""
+    dict_data = list_proc_modes()
+    for m in dict_data:
+        for p in dict_data[m]:
+            modes_dict = {}
+            for pm in dict_data[m][p]:
+                if pm == "":
+                    continue 
+                if verbose > 0:
+                    print(f"Processing {m}/{p}/{pm}...")
+                modes_dict[pm] = {}
+                wave_timestamps = get_wave_list(m, p, pm)[-number:]
+                spectrum_timestamps = get_spectrum_list(m, p, pm)[-number:]
+                for ts in wave_timestamps:
+                    ts = ts.replace("[", "").replace("]", "").split(" / ")[1]
+                    if verbose > 1:
+                        print(f"  Wave timestamp: {ts}")
+                    if ts not in modes_dict[pm]:
+                        modes_dict[pm][ts] = {}
+                    modes_dict[pm][ts]["wave"] = fetch(f"waves/{m}/{p}/{pm}/{ts}")
+                for ts in spectrum_timestamps:
+                    ts = ts.replace("[", "").replace("]", "").split(" / ")[1]
+                    if verbose > 1:
+                        print(f"  Spectrum timestamp: {ts}")
+                    if ts not in modes_dict[pm]:
+                        modes_dict[pm][ts] = {}
+                    modes_dict[pm][ts]["spectrum"] = fetch(f"spectra/{m}/{p}/{pm}/{ts}")
+            dict_data[m][p] = modes_dict
+    return dict_data
 
 # Helper functions
 def get_base_url()-> str:
