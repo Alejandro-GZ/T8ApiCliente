@@ -170,7 +170,7 @@ def list_procs(ctx: click.Context) -> None:
 @click.option("--verbose", "-v", default=0, help="Verbose output level")
 @click.pass_context
 def waves_and_spectra_to_csv(ctx: click.Context, number: int, verbose: int) -> None:
-    """"""
+    """List the <number> latest available waves and spectra."""
     dict_data = list_all_waves_and_spectra(number,verbose)
     rows = []
     output_dir = Path("data/api_data")
